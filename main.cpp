@@ -9,6 +9,7 @@ int main() {
     const char *defaultEncryptionKey = "richktest"; // pre-shared key with RMS, to enable encryption before receiving a server-side generated key
     const char *serverAddress = "127.0.0.1"; // Richkware-Manager-Server IP address
     const char *port = "8080"; // Richkware-Manager-Server TCP port
+    const char *serviceName = "Richkware-Manager-Server"; // Richkware-Manager-Server service name
     const char *associatedUser = "richk@richk.me"; // account in RMS which is linked to
 
     // with RichkwareManagerServer

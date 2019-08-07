@@ -31,6 +31,14 @@
 #include "network.h"
 #include "storage.h"
 
+typedef struct RMSinfo{
+    const char *defaultEncryptionKey;
+    const char *serverAddress;
+    const char *port;
+    const char *serviceName;
+    const char *associatedUser;
+} RMSinfo;
+
 class Richkware {
 private:
     std::string appName;
@@ -47,6 +55,8 @@ public:
     Richkware(const char *AppNameArg, const std::string &defaultEncryptionKey, const char *serverAddress,
               const char *port,
               const char *associatedUser);
+
+    Richkware(const char *AppNameArg, RMSinfo rmSinfo);
 
     BOOL IsAdmin();
 
